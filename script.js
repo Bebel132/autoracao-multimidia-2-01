@@ -199,11 +199,9 @@ function runTurn() {
     }
     // 1. O robô decide
     let action = currentRobot(currentState, robotMemory);
-    //console.log("proxima direção: "+action.direction);
     
     // 2. O estado atualiza (Imutabilidade)
     let nextState = currentState.move(action.direction);
-    //console.log(currentState, nextState)
     
     // Detecção simples de entrega para log (Tema 2 pode melhorar isso)
     if(nextState.parcels.length < currentState.parcels.length) {
@@ -277,21 +275,32 @@ function drawVillage(state) {
     }
 
     // Dica para Tema 5: Desenhar a rota (linha tracejada) aqui
+    // na primeira renderização do canvas, o currentRobot é null, e por isso dá erro se for executar esse bloco de código
+    // da mesma forma, quando o robô não tem mais o que fazer (entregou todas as encomendas), o state também é null, então esse bloco de código não deve ser executado
     if(typeof currentRobot === 'function' && state) {
-        ctx.strokeStyle = "#ff00d4ff";
-        ctx.lineWidth = 5;
-        ctx.setLineDash([5, 5]);
+        // obtém a próxima ação do robô
         const action = currentRobot(state, robotMemory);
+        // verifica se há uma direção válida para desenhar o caminho que o robô seguirá
         if(action.direction) {
+            // configurações da linha tracejada
+            ctx.strokeStyle = "#ff00d4ff";
+            ctx.lineWidth = 5;
+            ctx.setLineDash([5, 5]);
             ctx.beginPath();
-            let start = locations[state.place];
-            ctx.moveTo(start.x, start.y);
-            let loc = locations[action.direction];
-            ctx.lineTo(loc.x, loc.y);
             
+            // começa do local atual do robô
+            let start = locations[state.place];
+            // desenha a linha tracejada
+            ctx.moveTo(start.x, start.y);
+            
+            // obtém a localização da próxima direção
+            let loc = locations[action.direction];
+            // desenha até a próxima direção
+            ctx.lineTo(loc.x, loc.y);
+            // finaliza o desenho da linha tracejada
             ctx.stroke();
+            ctx.setLineDash([]);
         }
-        ctx.setLineDash([]);
     }
 
     // 2. Desenhar Locais (Círculos) - Tema 1 adicionará novos
